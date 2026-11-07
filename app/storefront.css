@@ -3999,6 +3999,13 @@ html.panel-open {
   background: var(--soft);
   box-shadow: inset 2px 0 0 var(--red);
 }
+.store .side-cats a.in-branch {
+  color: var(--heading);
+  font-weight: 550;
+}
+.store .side-cats a[data-child] {
+  animation: rise-in 0.4s var(--ease) both;
+}
 .store .side-cats a.active svg {
   opacity: 1;
   transform: none;

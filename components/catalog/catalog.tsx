@@ -38,6 +38,18 @@ export async function Catalog({
   const total = products?.meta?.total ?? 0;
   const totalPages = Math.max(1, products?.meta?.totalPages ?? 1);
   const selectedName = flat.find((c) => c.slug === selected)?.name ?? selected;
+  // Sidebar shows top-level categories and expands only the active branch.
+  const byId = new Map(flat.map((c) => [c.id, c]));
+  const openBranch = new Set<string>();
+  for (
+    let node = flat.find((c) => c.slug === selected);
+    node && !openBranch.has(node.id);
+    node = node.parentId ? byId.get(node.parentId) : undefined
+  )
+    openBranch.add(node.id);
+  const sideCategories = flat.filter(
+    (c) => !c.parentId || openBranch.has(c.parentId),
+  );
   function pageLink(index: number) {
     const next = new URLSearchParams(params);
     next.set("page", String(index));
@@ -63,11 +75,17 @@ export async function Catalog({
               All products
               <ChevronRight size={14} />
             </Link>
-            {flat.map((c) => (
+            {sideCategories.map((c) => (
               <Link
                 key={c.id}
                 href={categoryLink(c.slug)}
-                className={selected === c.slug ? "active" : ""}
+                className={
+                  selected === c.slug
+                    ? "active"
+                    : openBranch.has(c.id)
+                      ? "in-branch"
+                      : ""
+                }
                 aria-current={selected === c.slug ? "page" : undefined}
                 data-child={c.parentId ? "" : undefined}
               >
